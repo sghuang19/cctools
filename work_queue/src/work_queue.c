@@ -875,7 +875,7 @@ static struct work_queue_factory_info *create_factory_info(struct work_queue *q,
 	if ( (f = malloc(sizeof(*f))) ) {
 		f->name = xxstrdup(name);
 		f->connected_workers = 0;
-		f->max_workers = 0;
+		f->max_workers = INT_MAX;
 		f->seen_at_catalog = 0;
 	} else {
 		debug(D_WQ, "Failed to allocate memory for factory info");
