@@ -279,6 +279,7 @@ struct work_queue_factory_info {
 	char *name;
 	int   connected_workers;
 	int   max_workers;
+	int   seen_at_catalog;
 };
 
 struct work_queue_task_report {
@@ -853,6 +854,7 @@ static struct work_queue_factory_info *create_factory_info(struct work_queue *q,
 		f->name = xxstrdup(name);
 		f->connected_workers = 0;
 		f->max_workers = 0;
+		f->seen_at_catalog = 0;
 	} else {
 		debug(D_WQ, "Failed to allocate memory for factory info");
 	}
@@ -882,6 +884,7 @@ static void update_factory(struct work_queue *q, struct jx *j)
 	}
 
 	f->max_workers = jx_lookup_integer(j, "max_workers");
+	f->seen_at_catalog = 1;
 }
 
 void update_read_catalog_factory(struct work_queue *q, time_t stoptime) {
@@ -901,6 +904,7 @@ void update_read_catalog_factory(struct work_queue *q, time_t stoptime) {
 	while ( hash_table_nextkey(q->factory_table, &factory_name, (void **) &f) ) {
 		buffer_putfstring(&filter, "%sname == \"%s\"", first_name ? "" : " || ", factory_name);
 		first_name = 0;
+		(*f)->seen_at_catalog = 0;
 	}
 	buffer_putfstring(&filter, ")");
 	jexpr = jx_parse_string(buffer_tolstring(&filter, NULL));
